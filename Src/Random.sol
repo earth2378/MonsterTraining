@@ -1,16 +1,18 @@
 pragma solidity ^0.4.18;
 
 contract Random{
-    string race;
-    uint[2] extra;
+    bytes32 race;
+    int[2] extra;
     int[6] status;
+    int[6] slimeExtra;
     function randomSource(string name)public view returns(uint){
         uint random = uint256(keccak256(name,block.timestamp,msg.sender));
         return random;
     }
 
-    function raceRandom(string name)public returns(string){
+    function raceRandom(string name)public returns(bytes32){
         uint n = randomSource(name);
+        n = n/99%100;
         if(0 <= n || n < 100){
             if(n<23){
                 race = "Golem";
@@ -27,7 +29,7 @@ contract Random{
         }
     }
 
-    function statRandom(uint n)public pure returns(int){
+    function statRandom(uint n)private pure returns(int){
         int stat;
         if(0 <= n || n < 100){
             if(n<9){
@@ -57,15 +59,34 @@ contract Random{
         return status;
     }
     
-    function statsRandomSlime(uint n)public returns(int[6]){
-        
+    function extraStatRandomSlime(uint n)private pure returns(int){
+        int stat;
+        if(0 <= n || n < 100){
+            if(n<17){
+                stat = 3;
+            }else if(n<100){
+                stat = 2;
+            }
+            return stat;
+        }
+    }
+    
+    
+    function extraStatsRandomSlime(uint n)public returns(int[6]){
+        slimeExtra[0] =(extraStatRandomSlime(n/74)-1)*10;
+        slimeExtra[1] =(extraStatRandomSlime(n/44)-1)*10;
+        slimeExtra[2] = extraStatRandomSlime(n/91);
+        slimeExtra[3] = extraStatRandomSlime(n/53);
+        slimeExtra[4] = extraStatRandomSlime(n/29);
+        slimeExtra[5] = extraStatRandomSlime(n/17);
+        return slimeExtra;
     }
 
-    function extraStatRandom(uint n)public returns(uint[2]){
-        uint primaryRandom = n/19%100;
+    function extraStatRandom(uint n)public returns(int[2]){
+        uint primary = n/19%100;
         uint secondary = n/86%100;
-        if(0 <= primaryRandom || primaryRandom < 100){
-            if(primaryRandom<67){extra[0] = 3;}
+        if(0 <= primary || primary < 100){
+            if(primary<67){extra[0] = 3;}
             else{extra[0] = 4;}
         }
         if(0 <= secondary || secondary < 100){

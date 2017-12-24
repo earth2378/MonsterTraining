@@ -44,13 +44,13 @@ contract Monsters{
         index.push(name);
         realm[name].valid = true;
         uint randomNum = random.randomSource(name);
-        realm[name].race = random.raceRandom(name);
+        realm[name].Race = bytes32ToString(random.raceRandom(name));
         initStat(name,randomNum);
-        initExtraStat(name,race,randomNum);
+        initExtraStat(name,realm[name].Race,randomNum);
     }
 
     function initStat(string name,uint n)private{
-        int[6] storage status = random.statsRandom(n);
+        int[6] memory status = random.statsRandom(n);
         realm[name].Hp  = status[0];
         realm[name].Mp  = status[1];
         realm[name].Str = status[2];
@@ -60,12 +60,18 @@ contract Monsters{
 
     }
 
-    function initExtraStat(string name,string race,uint randomNum)private{
+    function initExtraStat(string name,string race,uint n)private{
         bytes32 tmp = sha256(race);
-        uint[2] storage extra = random.extraStatRandom();
         if(tmp == sha256("Slime")){
-
-        }else{  
+            int[6] memory extraS = random.extraStatsRandomSlime(n);
+            realm[name].Hp  = extraS[0];
+            realm[name].Mp  = extraS[1];
+            realm[name].Str = extraS[2];
+            realm[name].Dex = extraS[3];
+            realm[name].Int = extraS[4];
+            realm[name].Luk = extraS[5];
+        }else{
+            int[2] memory extra = random.extraStatRandom(n);
             if(tmp == sha256("Golem")){
                 realm[name].Str += extra[0];
                 realm[name].Hp  += extra[1]*10;
@@ -84,21 +90,22 @@ contract Monsters{
             }
         }
     }
-
-    function extraStatRandom(string name,string race,uint randomNum)private{
-        uint n = randomNum/19%100;
-        uint n2 = randomNum/86%100;
-        bytes32 tmp = sha256(race);
-
-
-
-        if(tmp == sha256("Slime")){
-            realm[name].Str += (int)(randomNum/74%3)+1;
-            realm[name].Dex += (int)(randomNum/44%3)+1;
-            realm[name].Int += (int)(randomNum/91%3)+1;
-            realm[name].Luk += (int)(randomNum/53%3)+1;
-            realm[name].Hp += (extra[0]-2)*10;
-            realm[name].Mp += extra[1]*10;
+    
+    
+    function bytes32ToString(bytes32 x)public pure returns (string) {
+        bytes memory bytesString = new bytes(32);
+        uint charCount = 0;
+        for (uint j = 0; j < 32; j++) {
+            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[charCount] = char;
+                charCount++;
+            }
         }
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (j = 0; j < charCount; j++) {
+            bytesStringTrimmed[j] = bytesString[j];
+        }
+        return string(bytesStringTrimmed);
     }
 }
