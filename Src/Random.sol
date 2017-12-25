@@ -5,6 +5,7 @@ contract Random{
     int[2] extra;
     int[6] status;
     int[6] slimeExtra;
+    
     function randomSource(string name)public view returns(uint){
         uint random = uint256(keccak256(name,block.timestamp,msg.sender));
         return random;

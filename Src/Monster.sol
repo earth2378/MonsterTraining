@@ -19,8 +19,7 @@ contract Monsters{
     string currentMonster = "";
 
 
-    function Monsters(string name)public{
-        hatch(name);
+    function Monsters()public{
     }
 
     function getCM()public constant returns(string){return currentMonster;}
@@ -29,10 +28,12 @@ contract Monsters{
         int[6] memory stat = [tmp.Hp,tmp.Mp,tmp.Str,tmp.Dex,tmp.Int,tmp.Luk];
         return stat;
     }
-    function getValid()public constant returns(bool){return realm[currentMonster].valid;}
+    function getValid(string name)public constant returns(bool){return realm[name].valid;}
     function getRace()public constant returns(string){return realm[currentMonster].Race;}
     function getName(uint i)public constant returns(string){return index[i];}
-
+    function loadStat()public view returns(int[6]){
+        return [realm[currentMonster].Hp,realm[currentMonster].Mp,realm[currentMonster].Str,realm[currentMonster].Dex,realm[currentMonster].Int,realm[currentMonster].Luk];
+    }
     function load(string name)public{
         if(realm[name].valid == true){
             currentMonster = name;
@@ -59,7 +60,6 @@ contract Monsters{
         realm[name].Luk = status[5];
 
     }
-
     function initExtraStat(string name,string race,uint n)private{
         bytes32 tmp = sha256(race);
         if(tmp == sha256("Slime")){
@@ -90,9 +90,7 @@ contract Monsters{
             }
         }
     }
-    
-    
-    function bytes32ToString(bytes32 x)public pure returns (string) {
+    function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
         for (uint j = 0; j < 32; j++) {
