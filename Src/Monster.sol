@@ -21,6 +21,16 @@ contract Monsters{
 
     function Monsters()public{
     }
+    
+    modifier monsterValid{
+        require(realm[currentMonster].valid == true);
+        _;
+    }
+    
+    modifier nonNegative(int value){
+        require(value >= 0);
+        _;
+    }
 
     function getCM()public constant returns(string){return currentMonster;}
     function getStat(string name)public constant returns(int[6]){
@@ -34,10 +44,11 @@ contract Monsters{
     function loadStat()public view returns(int[6]){
         return [realm[currentMonster].Hp,realm[currentMonster].Mp,realm[currentMonster].Str,realm[currentMonster].Dex,realm[currentMonster].Int,realm[currentMonster].Luk];
     }
+    
     function load(string name)public{
-        if(realm[name].valid == true){
-            currentMonster = name;
-        }
+        require(realm[name].valid == true);
+        currentMonster = name;
+        
     }
 
     function hatch(string name)public{
@@ -50,10 +61,16 @@ contract Monsters{
         initExtraStat(name,realm[name].Race,randomNum);
     }
 
+    function ugradeHp (int value)public monsterValid nonNegative(value){realm[currentMonster].Hp  += value;}
+    function upgradeMp (int value)public monsterValid nonNegative(value){realm[currentMonster].Mp  += value;}
+    function upgradeStr(int value)public monsterValid nonNegative(value){realm[currentMonster].Str += value;}
+    function upgradeDex(int value)public monsterValid nonNegative(value){realm[currentMonster].Dex += value;}
+    function upgradeInt(int value)public monsterValid nonNegative(value){realm[currentMonster].Int += value;}
+    function upgradeLuk(int value)public monsterValid nonNegative(value){realm[currentMonster].Luk += value;}
+
     function initRace(string name,uint n)private{
         realm[name].Race = bytes32ToString(random.raceRandom(n));
     }
-
     function initStat(string name,uint n)private{
         int[6] memory status = random.statsRandom(n);
         realm[name].Hp  = status[0];
@@ -62,7 +79,6 @@ contract Monsters{
         realm[name].Dex = status[3];
         realm[name].Int = status[4];
         realm[name].Luk = status[5];
-
     }
     function initExtraStat(string name,string race,uint n)private{
         bytes32 tmp = sha256(race);
