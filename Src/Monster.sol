@@ -45,9 +45,13 @@ contract Monsters{
         index.push(name);
         realm[name].valid = true;
         uint randomNum = random.randomSource(name);
-        realm[name].Race = bytes32ToString(random.raceRandom(name));
+        initRace(name,randomNum);
         initStat(name,randomNum);
         initExtraStat(name,realm[name].Race,randomNum);
+    }
+
+    function initRace(string name,uint n)private{
+        realm[name].Race = bytes32ToString(random.raceRandom(n));
     }
 
     function initStat(string name,uint n)private{

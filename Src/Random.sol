@@ -11,8 +11,7 @@ contract Random{
         return random;
     }
 
-    function raceRandom(string name)public returns(bytes32){
-        uint n = randomSource(name);
+    function raceRandom(uint n)public returns(bytes32){
         n = n/99%100;
         if(0 <= n || n < 100){
             if(n<23){
@@ -71,7 +70,6 @@ contract Random{
             return stat;
         }
     }
-
 
     function extraStatsRandomSlime(uint n)public returns(int[6]){
         slimeExtra[0] =(extraStatRandomSlime(n/74)-1)*10;
