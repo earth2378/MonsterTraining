@@ -5,7 +5,7 @@ contract Random{
     int[2] extra;
     int[6] status;
     int[6] slimeExtra;
-    
+
     function randomSource(string name)public view returns(uint){
         uint random = uint256(keccak256(name,block.timestamp,msg.sender));
         return random;
@@ -16,7 +16,7 @@ contract Random{
         n = n/99%100;
         if(0 <= n || n < 100){
             if(n<23){
-                race = "Golem";
+                race = "Bear";
             }else if(n<46){
                 race = "Wolf";
             }else if(n<69){
@@ -59,7 +59,7 @@ contract Random{
         status[5] = statRandom(n/15%100);
         return status;
     }
-    
+
     function extraStatRandomSlime(uint n)private pure returns(int){
         int stat;
         if(0 <= n || n < 100){
@@ -71,8 +71,8 @@ contract Random{
             return stat;
         }
     }
-    
-    
+
+
     function extraStatsRandomSlime(uint n)public returns(int[6]){
         slimeExtra[0] =(extraStatRandomSlime(n/74)-1)*10;
         slimeExtra[1] =(extraStatRandomSlime(n/44)-1)*10;

@@ -72,7 +72,7 @@ contract Monsters{
             realm[name].Luk = extraS[5];
         }else{
             int[2] memory extra = random.extraStatRandom(n);
-            if(tmp == sha256("Golem")){
+            if(tmp == sha256("Bear")){
                 realm[name].Str += extra[0];
                 realm[name].Hp  += extra[1]*10;
             }
