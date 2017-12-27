@@ -55,7 +55,7 @@ contract Monsters{
         require(realm[name].valid == false);
         index.push(name);
         realm[name].valid = true;
-        uint randomNum = random.randomSourceStat(name);
+        uint randomNum = random.randomSource(name);
         initRace(name,randomNum);
         initStat(name,randomNum);
         initExtraStat(name,realm[name].Race,randomNum);

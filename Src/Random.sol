@@ -6,7 +6,7 @@ contract Random{
     int[6] status;
     int[6] slimeExtra;
 
-    function randomSourceStat(string name)public view returns(uint){
+    function randomSource(string name)public view returns(uint){
         uint random = uint256(keccak256(name,block.timestamp,msg.sender));
         return random;
     }
@@ -93,10 +93,5 @@ contract Random{
             else{extra[1] = 2;}
         }
         return extra;
-    }
-    
-    function randomSourceMine(bytes32 word)public view returns(uint){
-        uint random = uint256(keccak256(word,block.timestamp,msg.sender));
-        return random;
     }
 }
