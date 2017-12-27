@@ -21,12 +21,12 @@ contract Monsters{
 
     function Monsters()public{
     }
-    
+
     modifier monsterValid{
         require(realm[currentMonster].valid == true);
         _;
     }
-    
+
     modifier nonNegative(int value){
         require(value >= 0);
         _;
@@ -44,18 +44,18 @@ contract Monsters{
     function loadStat()public view returns(int[6]){
         return [realm[currentMonster].Hp,realm[currentMonster].Mp,realm[currentMonster].Str,realm[currentMonster].Dex,realm[currentMonster].Int,realm[currentMonster].Luk];
     }
-    
+
     function load(string name)public{
         require(realm[name].valid == true);
         currentMonster = name;
-        
+
     }
 
     function hatch(string name)public{
         require(realm[name].valid == false);
         index.push(name);
         realm[name].valid = true;
-        uint randomNum = random.randomSource(name);
+        uint randomNum = uint randomNum = random.randomSourceStat(name);
         initRace(name,randomNum);
         initStat(name,randomNum);
         initExtraStat(name,realm[name].Race,randomNum);
