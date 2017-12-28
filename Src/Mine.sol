@@ -16,6 +16,7 @@ contract Mine{
 
     function getClass()public view returns(string){return bytes32ToString(reward.class);}
     function getAmount()public view returns(int){return reward.amount;}
+    function getReward()public view returns(bytes32, int){return (reward.class,reward.amount);}
 
     function mine(bytes32 word)public{
         clearTmp();

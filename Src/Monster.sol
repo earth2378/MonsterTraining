@@ -18,7 +18,6 @@ contract Monsters{
     }
     string currentMonster = "";
 
-
     function Monsters()public{
     }
 
@@ -55,7 +54,7 @@ contract Monsters{
         require(realm[name].valid == false);
         index.push(name);
         realm[name].valid = true;
-        uint randomNum = uint randomNum = random.randomSourceStat(name);
+        uint randomNum = random.randomSourceStat(name);
         initRace(name,randomNum);
         initStat(name,randomNum);
         initExtraStat(name,realm[name].Race,randomNum);
