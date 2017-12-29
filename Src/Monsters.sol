@@ -60,7 +60,7 @@ contract Monsters{
         initExtraStat(name,realm[name].Race,randomNum);
     }
 
-    function ugradeHp (int value)public monsterValid nonNegative(value){realm[currentMonster].Hp  += value;}
+    function upgradeHp (int value)public monsterValid nonNegative(value){realm[currentMonster].Hp  += value;}
     function upgradeMp (int value)public monsterValid nonNegative(value){realm[currentMonster].Mp  += value;}
     function upgradeStr(int value)public monsterValid nonNegative(value){realm[currentMonster].Str += value;}
     function upgradeDex(int value)public monsterValid nonNegative(value){realm[currentMonster].Dex += value;}

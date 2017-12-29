@@ -15,6 +15,7 @@ contract Inventory{
     int mineTicket;
     address owner;
     string[7] private Gem = ["Hp","Mp","Str" ,"Dex" ,"Int" ,"Luk" ,"Crude"];
+    
     function Inventory()public{
         owner = msg.sender;
         Zil = 0;
