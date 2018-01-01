@@ -1,5 +1,12 @@
 pragma solidity ^0.4.18;
 contract Inventory{
+    struct Bag{
+        address owner;
+        GemBag bag;
+        int mineTicket;
+        int zil;
+        bool valid;
+    }
     struct GemBag{
         int Hp;
         int Mp;
@@ -9,24 +16,22 @@ contract Inventory{
         int Luk;
         int Crude;
     }
-    
-    GemBag Bag;
-    int Zil;
-    int mineTicket;
-    address owner;
+    mapping(address => Bag)userInventory;
     string[7] private Gem = ["Hp","Mp","Str" ,"Dex" ,"Int" ,"Luk" ,"Crude"];
-    
+
     function Inventory()public{
-        owner = msg.sender;
-        Zil = 0;
-        mineTicket = 0;
+
     }
-    
+
     modifier Owner{
-        require(msg.sender == owner);
+        require(msg.sender == userInventory[msg.sender].owner);
         _;
     }
-    
+    modifier Valid{
+        require(userInventory[msg.sender].valid == true);
+        _;
+    }
+
     modifier GemClass(string class){
         bytes32 Bclass = keccak256(class);
         for(uint i=0; i<=6; i++){
@@ -35,67 +40,77 @@ contract Inventory{
             }
         }
     }
-    
-    function getZil()public view returns(int){return Zil;}
-    function getTiket()public view returns(int){return mineTicket;}
+
+    function getZil()public view returns(int){return userInventory[msg.sender].zil;}
+    function getTicket()public view returns(int){return userInventory[msg.sender].mineTicket;}
     function getBag()public view returns(int[7]){
-        return [Bag.Hp, Bag.Mp, Bag.Str, Bag.Dex, Bag.Int, Bag.Luk, Bag.Crude];
+        GemBag storage myBag = userInventory[msg.sender].bag;
+        return [myBag.Hp, myBag.Mp, myBag.Str, myBag.Dex, myBag.Int, myBag.Luk, myBag.Crude];
     }
     
-    function topUp()public payable Owner{
-        Zil += 1000*(int256)(msg.value)/1000000000000000000;
+    function initBag()public{
+        Bag storage myBag = userInventory[msg.sender];
+        myBag.owner = msg.sender;
+        myBag.valid = true;
     }
-    
-    function buyTicket(int n)public Owner{
-        require(Zil >= n*3000);
-        Zil -= n*3000;
-        mineTicket += n;
+
+    function topUp(uint value)public Owner Valid{
+        userInventory[msg.sender].zil += 1000*int256(value);
     }
-    
-    function useTicket()public Owner{
-        require(mineTicket>0);
-        mineTicket--;
+
+    function buyTicket(int n)public Owner Valid{
+        Bag storage myBag = userInventory[msg.sender];
+        require(myBag.zil >= n*3000);
+        myBag.zil -= n*3000;
+        myBag.mineTicket += n;
     }
-    
-    function useGem(string class, int amount)public GemClass(class){
+
+    function useTicket()public Owner Valid{
+        require(userInventory[msg.sender].mineTicket>0);
+        userInventory[msg.sender].mineTicket--;
+    }
+
+    function useGem(string class, int amount)public Owner Valid GemClass(class){
+        GemBag storage myBag = userInventory[msg.sender].bag;
         if(keccak256(class) == keccak256("Hp")){
-            require(Bag.Hp >= amount);
-            Bag.Hp -= amount;
+            require(myBag.Hp >= amount);
+            myBag.Hp -= amount;
         }else if(keccak256(class) == keccak256("Mp")){
-            require(Bag.Mp >= amount);
-            Bag.Mp -= amount;
+            require(myBag.Mp >= amount);
+            myBag.Mp -= amount;
         }else if(keccak256(class) == keccak256("Str")){
-            require(Bag.Str >= amount);
-            Bag.Str -= amount;
+            require(myBag.Str >= amount);
+            myBag.Str -= amount;
         }else if(keccak256(class) == keccak256("Dex")){
-            require(Bag.Dex >= amount);
-            Bag.Dex -= amount;
+            require(myBag.Dex >= amount);
+            myBag.Dex -= amount;
         }else if(keccak256(class) == keccak256("Int")){
-            require(Bag.Int >= amount);
-            Bag.Int -= amount;
+            require(myBag.Int >= amount);
+            myBag.Int -= amount;
         }else if(keccak256(class) == keccak256("Luk")){
-            require(Bag.Luk >= amount);
-            Bag.Luk -= amount;
+            require(myBag.Luk >= amount);
+            myBag.Luk -= amount;
         }else if(keccak256(class) == keccak256("Crude")){
-            Bag.Crude -= amount;
+            myBag.Crude -= amount;
         }
     }
-    
-    function receiveGem(string class, int amount)public GemClass(class){
+
+    function receiveGem(string class, int amount)public Owner Valid GemClass(class){
+        GemBag storage myBag = userInventory[msg.sender].bag;
         if(keccak256(class) == keccak256("Hp")){
-            Bag.Hp += amount;
+            myBag.Hp += amount;
         }else if(keccak256(class) == keccak256("Mp")){
-            Bag.Mp += amount;
+            myBag.Mp += amount;
         }else if(keccak256(class) == keccak256("Str")){
-            Bag.Str += amount;
+            myBag.Str += amount;
         }else if(keccak256(class) == keccak256("Dex")){
-            Bag.Dex += amount;
+            myBag.Dex += amount;
         }else if(keccak256(class) == keccak256("Int")){
-            Bag.Int += amount;
+            myBag.Int += amount;
         }else if(keccak256(class) == keccak256("Luk")){
-            Bag.Luk += amount;
+            myBag.Luk += amount;
         }else if(keccak256(class) == keccak256("Crude")){
-            Bag.Crude += amount;
+            myBag.Crude += amount;
         }
     }
 }

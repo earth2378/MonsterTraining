@@ -5,21 +5,35 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-    mapping(address => Monsters)realm;
-    mapping(address => Inventory)inventory;
+    
+    
+    //mapping(address => Monsters)realm;
+    //mapping(address => Inventory)inventory;
     mapping(address => bytes32)passwordStorage;
     address GM;
+    mapping(address => bytes32)selectedMonster;
 
     function MonsterTraining()public{
         GM = msg.sender;
     }
 
     function getBalance()public view returns(int){
-        inventory[msg.sender].getZil();
+        return inventory[msg.sender].getZil();
     }
-    //function selectedMonster()public view returns()
+    function mySelectedMonster()public view returns(bytes32){
+        return selectedMonster[msg.sender];
+    }
+    function myBag()public view returns(int[7]){
+        return inventory[msg.sender].getBag();
+    }
+    function myTicket()public view returns(int){
+        return inventory[msg.sender].getTicket();
+    }
+    function get()public view returns(int[6]){
+        return realm[msg.sender].loadStat();
+    }
 
-    function a()public view returns(bytes32){
+    function hashedPass()public view returns(bytes32){
         return passwordStorage[msg.sender];
     }
 
@@ -31,7 +45,8 @@ contract MonsterTraining{
     }
 
     function topUp() public payable{
-        inventory[msg.sender].topUp();
+        uint tmp = msg.value/1000000000000000000;
+        inventory[msg.sender].topUp(tmp);
     }
 
     function hatchMonster(string name)public{
@@ -41,5 +56,29 @@ contract MonsterTraining{
     
     function loadMonster(string name)public{
         realm[msg.sender].load(name);
+        selectedMonster[msg.sender] = realm[msg.sender].getCM();
+    }
+    
+    function buyTicket(int n)public{
+        inventory[msg.sender].buyTicket(n);
+    }
+    
+    
+    
+    function bytes32ToString(bytes32 x)private pure returns(string) {
+        bytes memory bytesString = new bytes(32);
+        uint charCount = 0;
+        for (uint j = 0; j < 32; j++) {
+            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[charCount] = char;
+                charCount++;
+            }
+        }
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (j = 0; j < charCount; j++) {
+            bytesStringTrimmed[j] = bytesString[j];
+        }
+        return string(bytesStringTrimmed);
     }
 }

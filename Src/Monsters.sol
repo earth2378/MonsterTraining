@@ -4,8 +4,14 @@ import "./Random.sol";
 
 contract Monsters{
     Random random = new Random();
-    string[] index;
-    mapping(string => Monster)realm;
+
+    struct Realm{
+        address owner;
+        mapping(string => Monster)realm;
+        string[] index;
+        string cm;
+        bool valid;
+    }
     struct Monster{
         bool valid;
         string Race;
@@ -16,13 +22,14 @@ contract Monsters{
         int Hp;
         int Mp;
     }
-    string currentMonster = "";
+
+    mapping(address => Realm)userRealm;
 
     function Monsters()public{
     }
 
     modifier monsterValid{
-        require(realm[currentMonster].valid == true);
+        require(userRealm[msg.sender].realm[userRealm[msg.sender].cm].valid == true);
         _;
     }
 
@@ -31,85 +38,99 @@ contract Monsters{
         _;
     }
 
-    function getCM()public constant returns(string){return currentMonster;}
+    function getCM()public constant returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
     function getStat(string name)public constant returns(int[6]){
-        Monster storage tmp = realm[name];
-        int[6] memory stat = [tmp.Hp,tmp.Mp,tmp.Str,tmp.Dex,tmp.Int,tmp.Luk];
-        return stat;
+        Monster storage tmp = userRealm[msg.sender].realm[name];
+        return [tmp.Hp,tmp.Mp,tmp.Str,tmp.Dex,tmp.Int,tmp.Luk];
     }
-    function getValid(string name)public constant returns(bool){return realm[name].valid;}
-    function getRace()public constant returns(string){return realm[currentMonster].Race;}
-    function getName(uint i)public constant returns(string){return index[i];}
+    function getValid(string name)public constant returns(bool){return userRealm[msg.sender].realm[name].valid;}
+    function getRace()public constant returns(string){return userRealm[msg.sender].realm[userRealm[msg.sender].cm].Race;}
+    function getName(uint i)public constant returns(string){return userRealm[msg.sender].index[i];}
     function loadStat()public view returns(int[6]){
-        return [realm[currentMonster].Hp,realm[currentMonster].Mp,realm[currentMonster].Str,realm[currentMonster].Dex,realm[currentMonster].Int,realm[currentMonster].Luk];
+        Monster storage myMonster = userRealm[msg.sender].realm[userRealm[msg.sender].cm];
+        return [myMonster.Hp,myMonster.Mp,myMonster.Str,myMonster.Dex,myMonster.Int,myMonster.Luk];
     }
 
     function load(string name)public{
-        require(realm[name].valid == true);
-        currentMonster = name;
+        require(userRealm[msg.sender].realm[name].valid == true);
+        userRealm[msg.sender].cm = name;
 
     }
 
     function hatch(string name)public{
-        require(realm[name].valid == false);
-        index.push(name);
-        realm[name].valid = true;
+        Realm storage myMonster = userRealm[msg.sender];
+        require(myMonster.realm[name].valid == false);
+        myMonster.index.push(name);
+        myMonster.realm[name].valid = true;
         uint randomNum = random.randomSourceStat(name);
         initRace(name,randomNum);
         initStat(name,randomNum);
-        initExtraStat(name,realm[name].Race,randomNum);
+        initExtraStat(name,myMonster.realm[name].Race,randomNum);
     }
 
-    function upgradeHp (int value)public monsterValid nonNegative(value){realm[currentMonster].Hp  += value;}
-    function upgradeMp (int value)public monsterValid nonNegative(value){realm[currentMonster].Mp  += value;}
-    function upgradeStr(int value)public monsterValid nonNegative(value){realm[currentMonster].Str += value;}
-    function upgradeDex(int value)public monsterValid nonNegative(value){realm[currentMonster].Dex += value;}
-    function upgradeInt(int value)public monsterValid nonNegative(value){realm[currentMonster].Int += value;}
-    function upgradeLuk(int value)public monsterValid nonNegative(value){realm[currentMonster].Luk += value;}
+    function upgradeHp (int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Hp  += value;}
+    function upgradeMp (int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Mp  += value;}
+    function upgradeStr(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Str += value;}
+    function upgradeDex(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Dex += value;}
+    function upgradeInt(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Int += value;}
+    function upgradeLuk(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Luk += value;}
 
     function initRace(string name,uint n)private{
-        realm[name].Race = bytes32ToString(random.raceRandom(n));
+        userRealm[msg.sender].realm[name].Race = bytes32ToString(random.raceRandom(n));
     }
     function initStat(string name,uint n)private{
         int[6] memory status = random.statsRandom(n);
-        realm[name].Hp  = status[0];
-        realm[name].Mp  = status[1];
-        realm[name].Str = status[2];
-        realm[name].Dex = status[3];
-        realm[name].Int = status[4];
-        realm[name].Luk = status[5];
+        Realm storage myMonster = userRealm[msg.sender];
+        myMonster.realm[name].Hp  = status[0];
+        myMonster.realm[name].Mp  = status[1];
+        myMonster.realm[name].Str = status[2];
+        myMonster.realm[name].Dex = status[3];
+        myMonster.realm[name].Int = status[4];
+        myMonster.realm[name].Luk = status[5];
     }
     function initExtraStat(string name,string race,uint n)private{
         bytes32 tmp = sha256(race);
+        Realm storage myMonster = userRealm[msg.sender];
         if(tmp == sha256("Slime")){
             int[6] memory extraS = random.extraStatsRandomSlime(n);
-            realm[name].Hp  = extraS[0];
-            realm[name].Mp  = extraS[1];
-            realm[name].Str = extraS[2];
-            realm[name].Dex = extraS[3];
-            realm[name].Int = extraS[4];
-            realm[name].Luk = extraS[5];
+            myMonster.realm[name].Hp  = extraS[0];
+            myMonster.realm[name].Mp  = extraS[1];
+            myMonster.realm[name].Str = extraS[2];
+            myMonster.realm[name].Dex = extraS[3];
+            myMonster.realm[name].Int = extraS[4];
+            myMonster.realm[name].Luk = extraS[5];
         }else{
             int[2] memory extra = random.extraStatRandom(n);
             if(tmp == sha256("Bear")){
-                realm[name].Str += extra[0];
-                realm[name].Hp  += extra[1]*10;
+                myMonster.realm[name].Str += extra[0];
+                myMonster.realm[name].Hp  += extra[1]*10;
             }
             if(tmp == sha256("Wolf")){
-                realm[name].Dex += extra[0];
-                realm[name].Luk += extra[1];
+                myMonster.realm[name].Dex += extra[0];
+                myMonster.realm[name].Luk += extra[1];
             }
             if(tmp == sha256("Fairy")){
-                realm[name].Int += extra[0];
-                realm[name].Mp  += extra[1]*10;
+                myMonster.realm[name].Int += extra[0];
+                myMonster.realm[name].Mp  += extra[1]*10;
             }
             if(tmp == sha256("Rabbit")){
-                realm[name].Luk += extra[0];
-                realm[name].Dex += extra[1];
+                myMonster.realm[name].Luk += extra[0];
+                myMonster.realm[name].Dex += extra[1];
             }
         }
     }
-    function bytes32ToString(bytes32 x)private pure returns(string) {
+    function stringToBytes32(string memory source)public pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
+    function bytes32ToString(bytes32 x)public pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
         for (uint j = 0; j < 32; j++) {
