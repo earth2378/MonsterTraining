@@ -7,30 +7,32 @@ import "./Monsters.sol";
 contract MonsterTraining{
     
     
-    //mapping(address => Monsters)realm;
-    //mapping(address => Inventory)inventory;
+    Inventory inventory;
+    Monsters monsters;
     mapping(address => bytes32)passwordStorage;
     address GM;
     mapping(address => bytes32)selectedMonster;
 
-    function MonsterTraining()public{
+    function MonsterTraining(address i, address m)public{
         GM = msg.sender;
+        inventory = Inventory(i);
+        monsters = Monsters(m);
     }
 
     function getBalance()public view returns(int){
-        return inventory[msg.sender].getZil();
+        return inventory.getZil();
     }
     function mySelectedMonster()public view returns(bytes32){
         return selectedMonster[msg.sender];
     }
     function myBag()public view returns(int[7]){
-        return inventory[msg.sender].getBag();
+        return inventory.getBag();
     }
     function myTicket()public view returns(int){
-        return inventory[msg.sender].getTicket();
+        return inventory.getTicket();
     }
     function get()public view returns(int[6]){
-        return realm[msg.sender].loadStat();
+        return monsters.loadStat();
     }
 
     function hashedPass()public view returns(bytes32){
@@ -40,27 +42,27 @@ contract MonsterTraining{
     function register(string password)public{
         require(passwordStorage[msg.sender] == bytes32(0));
         passwordStorage[msg.sender] = keccak256(msg.sender,password);
-        realm[msg.sender] = new Monsters();
-        inventory[msg.sender] = new Inventory();
+        inventory.initBag();
+        monsters.initRealm;
     }
 
     function topUp() public payable{
         uint tmp = msg.value/1000000000000000000;
-        inventory[msg.sender].topUp(tmp);
+        inventory.topUp(tmp);
     }
 
     function hatchMonster(string name)public{
-        inventory[msg.sender].useTicket();
-        realm[msg.sender].hatch(name);
+        inventory.useTicket();
+        monsters.hatch(name);
     }
     
     function loadMonster(string name)public{
-        realm[msg.sender].load(name);
-        selectedMonster[msg.sender] = realm[msg.sender].getCM();
+        monsters.load(name);
+        selectedMonster[msg.sender] = monsters.getCM();
     }
     
     function buyTicket(int n)public{
-        inventory[msg.sender].buyTicket(n);
+        inventory.buyTicket(n);
     }
     
     

@@ -38,6 +38,15 @@ contract Monsters{
         _;
     }
 
+    modifier Owner{
+        require(msg.sender == userRealm[msg.sender].owner);
+        _;
+    }
+    modifier Valid{
+        require(userRealm[msg.sender].valid == true);
+        _;
+    }
+
     function getCM()public constant returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
     function getStat(string name)public constant returns(int[6]){
         Monster storage tmp = userRealm[msg.sender].realm[name];
@@ -51,13 +60,19 @@ contract Monsters{
         return [myMonster.Hp,myMonster.Mp,myMonster.Str,myMonster.Dex,myMonster.Int,myMonster.Luk];
     }
 
-    function load(string name)public{
+    function initRealm()public{
+        Realm storage myRealm = userRealm[msg.sender];
+        myRealm.owner = msg.sender;
+        myRealm.valid = true;
+    }
+
+    function load(string name)public Owner Valid{
         require(userRealm[msg.sender].realm[name].valid == true);
         userRealm[msg.sender].cm = name;
 
     }
 
-    function hatch(string name)public{
+    function hatch(string name)public Owner Valid{
         Realm storage myMonster = userRealm[msg.sender];
         require(myMonster.realm[name].valid == false);
         myMonster.index.push(name);
@@ -68,12 +83,12 @@ contract Monsters{
         initExtraStat(name,myMonster.realm[name].Race,randomNum);
     }
 
-    function upgradeHp (int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Hp  += value;}
-    function upgradeMp (int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Mp  += value;}
-    function upgradeStr(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Str += value;}
-    function upgradeDex(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Dex += value;}
-    function upgradeInt(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Int += value;}
-    function upgradeLuk(int value)public monsterValid nonNegative(value){userRealm[msg.sender].realm[userRealm[msg.sender].cm].Luk += value;}
+    function upgradeHp (int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Hp  += value;}
+    function upgradeMp (int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Mp  += value;}
+    function upgradeStr(int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Str += value;}
+    function upgradeDex(int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Dex += value;}
+    function upgradeInt(int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Int += value;}
+    function upgradeLuk(int value)public monsterValid nonNegative(value) Owner Valid{userRealm[msg.sender].realm[userRealm[msg.sender].cm].Luk += value;}
 
     function initRace(string name,uint n)private{
         userRealm[msg.sender].realm[name].Race = bytes32ToString(random.raceRandom(n));
@@ -119,7 +134,7 @@ contract Monsters{
             }
         }
     }
-    function stringToBytes32(string memory source)public pure returns (bytes32 result) {
+    function stringToBytes32(string memory source)private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
@@ -130,7 +145,7 @@ contract Monsters{
         }
     }
 
-    function bytes32ToString(bytes32 x)public pure returns(string) {
+    function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
         for (uint j = 0; j < 32; j++) {
