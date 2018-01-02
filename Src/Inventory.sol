@@ -4,6 +4,7 @@ contract Inventory{
         address owner;
         GemBag bag;
         int mineTicket;
+        int hatchEgg;
         int zil;
         bool valid;
     }
@@ -32,10 +33,9 @@ contract Inventory{
         _;
     }
 
-    modifier GemClass(string class){
-        bytes32 Bclass = keccak256(class);
+    modifier GemClass(bytes32 class){
         for(uint i=0; i<=6; i++){
-            if(Bclass == keccak256(Gem[i])){
+            if(class == keccak256(Gem[i])){
                 _;
             }
         }
@@ -43,11 +43,12 @@ contract Inventory{
 
     function getZil()public view returns(int){return userInventory[msg.sender].zil;}
     function getTicket()public view returns(int){return userInventory[msg.sender].mineTicket;}
+    function getEgg()public view returns(int){return userInventory[msg.sender].hatchEgg;}
     function getBag()public view returns(int[7]){
         GemBag storage myBag = userInventory[msg.sender].bag;
         return [myBag.Hp, myBag.Mp, myBag.Str, myBag.Dex, myBag.Int, myBag.Luk, myBag.Crude];
     }
-    
+
     function initBag()public{
         Bag storage myBag = userInventory[msg.sender];
         myBag.owner = msg.sender;
@@ -64,52 +65,62 @@ contract Inventory{
         myBag.zil -= n*3000;
         myBag.mineTicket += n;
     }
-
     function useTicket()public Owner Valid{
         require(userInventory[msg.sender].mineTicket>0);
         userInventory[msg.sender].mineTicket--;
     }
 
-    function useGem(string class, int amount)public Owner Valid GemClass(class){
+    function buyEgg(int n)public Owner Valid{
+        Bag storage myBag = userInventory[msg.sender];
+        require(myBag.zil >= n*5000);
+        myBag.zil -= n*5000;
+        myBag.hatchEgg += n;
+    }
+    function useEgg()public Owner Valid{
+        require(userInventory[msg.sender].hatchEgg>0);
+        userInventory[msg.sender].hatchEgg--;
+    }
+
+    function useGem(bytes32 class, int amount)public Owner Valid GemClass(class){
         GemBag storage myBag = userInventory[msg.sender].bag;
-        if(keccak256(class) == keccak256("Hp")){
+        if(class == keccak256("Hp")){
             require(myBag.Hp >= amount);
             myBag.Hp -= amount;
-        }else if(keccak256(class) == keccak256("Mp")){
+        }else if(class == keccak256("Mp")){
             require(myBag.Mp >= amount);
             myBag.Mp -= amount;
-        }else if(keccak256(class) == keccak256("Str")){
+        }else if(class == keccak256("Str")){
             require(myBag.Str >= amount);
             myBag.Str -= amount;
-        }else if(keccak256(class) == keccak256("Dex")){
+        }else if(class == keccak256("Dex")){
             require(myBag.Dex >= amount);
             myBag.Dex -= amount;
-        }else if(keccak256(class) == keccak256("Int")){
+        }else if(class == keccak256("Int")){
             require(myBag.Int >= amount);
             myBag.Int -= amount;
-        }else if(keccak256(class) == keccak256("Luk")){
+        }else if(class == keccak256("Luk")){
             require(myBag.Luk >= amount);
             myBag.Luk -= amount;
-        }else if(keccak256(class) == keccak256("Crude")){
+        }else if(class == keccak256("Crude")){
             myBag.Crude -= amount;
         }
     }
 
-    function receiveGem(string class, int amount)public Owner Valid GemClass(class){
+    function receiveGem(bytes32 class, int amount)public Owner Valid GemClass(class){
         GemBag storage myBag = userInventory[msg.sender].bag;
-        if(keccak256(class) == keccak256("Hp")){
+        if(class == keccak256("Hp")){
             myBag.Hp += amount;
-        }else if(keccak256(class) == keccak256("Mp")){
+        }else if(class == keccak256("Mp")){
             myBag.Mp += amount;
-        }else if(keccak256(class) == keccak256("Str")){
+        }else if(class == keccak256("Str")){
             myBag.Str += amount;
-        }else if(keccak256(class) == keccak256("Dex")){
+        }else if(class == keccak256("Dex")){
             myBag.Dex += amount;
-        }else if(keccak256(class) == keccak256("Int")){
+        }else if(class == keccak256("Int")){
             myBag.Int += amount;
-        }else if(keccak256(class) == keccak256("Luk")){
+        }else if(class == keccak256("Luk")){
             myBag.Luk += amount;
-        }else if(keccak256(class) == keccak256("Crude")){
+        }else if(class == keccak256("Crude")){
             myBag.Crude += amount;
         }
     }

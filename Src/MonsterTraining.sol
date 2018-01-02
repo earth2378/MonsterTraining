@@ -6,19 +6,19 @@ import "./Monsters.sol";
 
 contract MonsterTraining{
     
-    
+    Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
     mapping(address => bytes32)passwordStorage;
     address GM;
     mapping(address => bytes32)selectedMonster;
 
-    function MonsterTraining(address i, address m)public{
+    function MonsterTraining()public{
         GM = msg.sender;
-        inventory = Inventory(i);
-        monsters = Monsters(m);
+        inventory = Inventory(0x100eee74459cb95583212869f9c0304e7ce11eaa);
+        monsters = Monsters(0xe90f4f8aeba3ade774cac94245792085a451bc8e);
     }
-
+    function validd()public view returns(bool){return monsters.userValid();}
     function getBalance()public view returns(int){
         return inventory.getZil();
     }
@@ -43,7 +43,7 @@ contract MonsterTraining{
         require(passwordStorage[msg.sender] == bytes32(0));
         passwordStorage[msg.sender] = keccak256(msg.sender,password);
         inventory.initBag();
-        monsters.initRealm;
+        monsters.initRealm();
     }
 
     function topUp() public payable{
@@ -52,7 +52,7 @@ contract MonsterTraining{
     }
 
     function hatchMonster(string name)public{
-        inventory.useTicket();
+        inventory.useEgg();
         monsters.hatch(name);
     }
     
@@ -64,8 +64,38 @@ contract MonsterTraining{
     function buyTicket(int n)public{
         inventory.buyTicket(n);
     }
+    function buyEgg(int n)public{
+        inventory.buyEgg(n);
+    }
     
+    function mining(string word)public{
+        inventory.useTicket();
+        bytes32 classTmp;
+        int amountTmp;
+        bytes32 tmp = keccak256(word);
+        (classTmp,amountTmp) = mine.mine(tmp);
+        inventory.receiveGem(classTmp,amountTmp);
+    }
     
+    function useGem(string class, int amount)public{
+        bytes32 classTmp = keccak256(class);
+        inventory.useGem(classTmp,amount);
+        if(classTmp == keccak256("Hp")){
+            monsters.upgradeHp(amount*10);
+        }else if(classTmp == keccak256("Mp")){
+            monsters.upgradeMp(amount*10);
+        }else if(classTmp == keccak256("Str")){
+            monsters.upgradeStr(amount);
+        }else if(classTmp == keccak256("Dex")){
+            monsters.upgradeDex(amount);
+        }else if(classTmp == keccak256("Int")){
+            monsters.upgradeInt(amount);
+        }else if(classTmp == keccak256("Luk")){
+            monsters.upgradeLuk(amount);
+        }else if(classTmp == keccak256("Crude")){
+            //for exchange (Not implement yet)
+        }
+    }
     
     function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
@@ -83,4 +113,5 @@ contract MonsterTraining{
         }
         return string(bytesStringTrimmed);
     }
+    
 }

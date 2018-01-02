@@ -18,35 +18,36 @@ contract Mine{
     function getAmount()public view returns(int){return reward.amount;}
     function getReward()public view returns(bytes32, int){return (reward.class,reward.amount);}
 
-    function mine(bytes32 word)public{
+    function mine(bytes32 word)public returns(bytes32, int){
         clearTmp();
         uint randomNum = random.randomSourceMine(word);
         uint roll = randomNum%16;
         randomNum = randomNum%20;
         reward.class = minedClass(roll);
         reward.amount = minedAmount(reward.class,randomNum);
+        return (reward.class,reward.amount);
     }
 
 
     function minedClass(uint n)private pure returns(bytes32){
         bytes32 class;
-        if(n == 0){ class = bytes32("Hp");}
-        else if(n == 1){ class = bytes32("Mp");}
-        else if(n == 2){ class = bytes32("Str");}
-        else if(n == 3){ class = bytes32("Dex");}
-        else if(n == 4){ class = bytes32("Int");}
-        else if(n == 5){ class = bytes32("Luk");}
-        else if(n>=6 && n<10){ class = bytes32("Crude");}
-        else if(n>=10 && n<14){ class = bytes32("Zil");}
-        else{ class = bytes32("Empty");}
+        if(n == 0){ class = keccak256("Hp");}
+        else if(n == 1){ class = keccak256("Mp");}
+        else if(n == 2){ class = keccak256("Str");}
+        else if(n == 3){ class = keccak256("Dex");}
+        else if(n == 4){ class = keccak256("Int");}
+        else if(n == 5){ class = keccak256("Luk");}
+        else if(n>=6 && n<10){ class = keccak256("Crude");}
+        else if(n>=10 && n<14){ class = keccak256("Zil");}
+        else{ class = keccak256("Empty");}
         return class;
     }
 
     function minedAmount(bytes32 class,uint n)private pure returns(int){
         int tmp = (int)(n);
-        if(class == bytes32("Empty")){return 0;}
-        else if(class == bytes32("Zil")){return 1000 + (tmp*10);}
-        else if(class == bytes32("Crude")){
+        if(class == keccak256("Empty")){return 0;}
+        else if(class == keccak256("Zil")){return 1000 + (tmp*10);}
+        else if(class == keccak256("Crude")){
             if(tmp <5)return 1;
             else if(tmp <15)return 2;
             else return 3;
@@ -59,7 +60,7 @@ contract Mine{
     }
 
     function clearTmp()private{
-        reward.class = bytes32("Undified");
+        reward.class = keccak256("Undified");
         reward.amount = 0;
     }
 

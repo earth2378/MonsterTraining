@@ -46,7 +46,7 @@ contract Monsters{
         require(userRealm[msg.sender].valid == true);
         _;
     }
-
+    function userValid()public view returns(bool){return userRealm[msg.sender].valid;}
     function getCM()public constant returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
     function getStat(string name)public constant returns(int[6]){
         Monster storage tmp = userRealm[msg.sender].realm[name];
