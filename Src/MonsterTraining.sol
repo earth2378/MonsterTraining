@@ -5,39 +5,29 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-    
+
     Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
     mapping(address => bytes32)passwordStorage;
     address GM;
     mapping(address => bytes32)selectedMonster;
-
-    function MonsterTraining()public{
+    mapping(address => string[])userIndex;
+    function MonsterTraining(address i, address m)public{
         GM = msg.sender;
-        inventory = Inventory(0x100eee74459cb95583212869f9c0304e7ce11eaa);
-        monsters = Monsters(0xe90f4f8aeba3ade774cac94245792085a451bc8e);
+        inventory = Inventory(i);
+        monsters = Monsters(m);
     }
-    function validd()public view returns(bool){return monsters.userValid();}
-    function getBalance()public view returns(int){
-        return inventory.getZil();
-    }
-    function mySelectedMonster()public view returns(bytes32){
-        return selectedMonster[msg.sender];
-    }
-    function myBag()public view returns(int[7]){
-        return inventory.getBag();
-    }
-    function myTicket()public view returns(int){
-        return inventory.getTicket();
-    }
-    function get()public view returns(int[6]){
-        return monsters.loadStat();
-    }
-
-    function hashedPass()public view returns(bytes32){
-        return passwordStorage[msg.sender];
-    }
+    function userMValid()public view returns(bool){return monsters.userValid();}
+    function getBalance()public view returns(int){return inventory.getZil();}
+    function mySelectedMonster()public view returns(bytes32){return selectedMonster[msg.sender];}
+    function myBag()public view returns(int[7]){return inventory.getBag();}
+    function myTicket()public view returns(int){return inventory.getTicket();}
+    function loadStat()public view returns(int[6]){return monsters.loadStat();}
+    function getMe()public view returns(address){return msg.sender;}
+    function checkStat(string name)public view returns(int[6]){return monsters.getStat(name);}
+    function monsterExist(string name)public view returns(bool){return monsters.getValid(name);}
+    function getMyMonster(uint i)public view returns(string){return userIndex[msg.sender][i];}
 
     function register(string password)public{
         require(passwordStorage[msg.sender] == bytes32(0));
@@ -54,20 +44,21 @@ contract MonsterTraining{
     function hatchMonster(string name)public{
         inventory.useEgg();
         monsters.hatch(name);
+        userIndex[msg.sender].push(name);
     }
-    
+
     function loadMonster(string name)public{
         monsters.load(name);
         selectedMonster[msg.sender] = monsters.getCM();
     }
-    
+
     function buyTicket(int n)public{
         inventory.buyTicket(n);
     }
     function buyEgg(int n)public{
         inventory.buyEgg(n);
     }
-    
+
     function mining(string word)public{
         inventory.useTicket();
         bytes32 classTmp;
@@ -76,7 +67,7 @@ contract MonsterTraining{
         (classTmp,amountTmp) = mine.mine(tmp);
         inventory.receiveGem(classTmp,amountTmp);
     }
-    
+
     function useGem(string class, int amount)public{
         bytes32 classTmp = keccak256(class);
         inventory.useGem(classTmp,amount);
@@ -96,7 +87,7 @@ contract MonsterTraining{
             //for exchange (Not implement yet)
         }
     }
-    
+
     function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
@@ -113,5 +104,5 @@ contract MonsterTraining{
         }
         return string(bytesStringTrimmed);
     }
-    
+
 }
