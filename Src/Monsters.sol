@@ -47,14 +47,15 @@ contract Monsters{
         _;
     }
     function userValid()public view returns(bool){return userRealm[msg.sender].valid;}
-    function getCM()public constant returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
-    function getStat(string name)public constant returns(int[6]){
+    function getCM()public view returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
+    function getStat(string name)public view returns(int[6]){
         Monster storage tmp = userRealm[msg.sender].realm[name];
         return [tmp.Hp,tmp.Mp,tmp.Str,tmp.Dex,tmp.Int,tmp.Luk];
     }
-    function getValid(string name)public constant returns(bool){return userRealm[msg.sender].realm[name].valid;}
-    function getRace()public constant returns(string){return userRealm[msg.sender].realm[userRealm[msg.sender].cm].Race;}
-    function getName(uint i)public constant returns(string){return userRealm[msg.sender].index[i];}
+    function getValid(string name)public view returns(bool){return userRealm[msg.sender].realm[name].valid;}
+    function getRace(string name)public view returns(bytes32){return keccak256(userRealm[msg.sender].realm[name].Race);}
+    function getRaceB()public view returns(bytes32){return keccak256(userRealm[msg.sender].realm[userRealm[msg.sender].cm].Race);}
+    function getName(uint i)public view returns(string){return userRealm[msg.sender].index[i];}
     function loadStat()public view returns(int[6]){
         Monster storage myMonster = userRealm[msg.sender].realm[userRealm[msg.sender].cm];
         return [myMonster.Hp,myMonster.Mp,myMonster.Str,myMonster.Dex,myMonster.Int,myMonster.Luk];
@@ -104,9 +105,9 @@ contract Monsters{
         myMonster.realm[name].Luk = status[5];
     }
     function initExtraStat(string name,string race,uint n)private{
-        bytes32 tmp = sha256(race);
+        bytes32 tmp = keccak256(race);
         Realm storage myMonster = userRealm[msg.sender];
-        if(tmp == sha256("Slime")){
+        if(tmp == keccak256("Slime")){
             int[6] memory extraS = random.extraStatsRandomSlime(n);
             myMonster.realm[name].Hp  = extraS[0];
             myMonster.realm[name].Mp  = extraS[1];
@@ -116,19 +117,19 @@ contract Monsters{
             myMonster.realm[name].Luk = extraS[5];
         }else{
             int[2] memory extra = random.extraStatRandom(n);
-            if(tmp == sha256("Bear")){
+            if(tmp == keccak256("Bear")){
                 myMonster.realm[name].Str += extra[0];
                 myMonster.realm[name].Hp  += extra[1]*10;
             }
-            if(tmp == sha256("Wolf")){
+            if(tmp == keccak256("Wolf")){
                 myMonster.realm[name].Dex += extra[0];
                 myMonster.realm[name].Luk += extra[1];
             }
-            if(tmp == sha256("Fairy")){
+            if(tmp == keccak256("Fairy")){
                 myMonster.realm[name].Int += extra[0];
                 myMonster.realm[name].Mp  += extra[1]*10;
             }
-            if(tmp == sha256("Rabbit")){
+            if(tmp == keccak256("Rabbit")){
                 myMonster.realm[name].Luk += extra[0];
                 myMonster.realm[name].Dex += extra[1];
             }
