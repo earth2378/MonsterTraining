@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
+
 contract Inventory{
-    //version 1.0.0
+    //version 1.0.1
     struct Bag{
         address owner;
         GemBag bag;
@@ -19,10 +20,9 @@ contract Inventory{
         int Crude;
     }
     mapping(address => Bag)userInventory;
-    string[7] private Gem = ["Hp","Mp","Str" ,"Dex" ,"Int" ,"Luk" ,"Crude"];
+    string[8] private Item = ["Hp","Mp","Str" ,"Dex" ,"Int" ,"Luk" ,"Crude","Zil"];
 
     function Inventory()public{
-
     }
 
     modifier Owner{
@@ -33,12 +33,14 @@ contract Inventory{
         require(userInventory[msg.sender].valid == true);
         _;
     }
-
     modifier GemClass(bytes32 class){
         for(uint i=0; i<=6; i++){
-            if(class == keccak256(Gem[i])){
-                _;
-            }
+            if(class == keccak256(Item[i])) _;
+        }
+    }
+    modifier ItemClass(bytes32 class){
+        for(uint i=0; i<=7; i++){
+            if(class == keccak256(Item[i]))_;
         }
     }
 
@@ -57,7 +59,7 @@ contract Inventory{
     }
 
     function topUp(uint value)public Owner Valid{
-        userInventory[msg.sender].zil += 1000*int256(value);
+        userInventory[msg.sender].zil += int256(value);
     }
 
     function buyTicket(int n)public Owner Valid{
@@ -66,6 +68,7 @@ contract Inventory{
         myBag.zil -= n*3000;
         myBag.mineTicket += n;
     }
+
     function useTicket()public Owner Valid{
         require(userInventory[msg.sender].mineTicket>0);
         userInventory[msg.sender].mineTicket--;
@@ -77,6 +80,7 @@ contract Inventory{
         myBag.zil -= n*5000;
         myBag.hatchEgg += n;
     }
+
     function useEgg()public Owner Valid{
         require(userInventory[msg.sender].hatchEgg>0);
         userInventory[msg.sender].hatchEgg--;
@@ -107,7 +111,7 @@ contract Inventory{
         }
     }
 
-    function receiveGem(bytes32 class, int amount)public Owner Valid GemClass(class){
+    function receiveItem(bytes32 class, int amount)public Owner Valid ItemClass(class){
         GemBag storage myBag = userInventory[msg.sender].bag;
         if(class == keccak256("Hp")){
             myBag.Hp += amount;
@@ -123,6 +127,8 @@ contract Inventory{
             myBag.Luk += amount;
         }else if(class == keccak256("Crude")){
             myBag.Crude += amount;
+        }else if(class == keccak256("Zil")){
+            topUp(uint(amount));
         }
     }
 }

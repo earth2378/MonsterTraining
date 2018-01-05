@@ -3,7 +3,7 @@ pragma solidity ^0.4.18;
 import "./Random.sol";
 
 contract Monsters{
-    //version 1.0.0
+    //version 1.0.1
     Random random = new Random();
 
     struct Realm{
@@ -33,12 +33,10 @@ contract Monsters{
         require(userRealm[msg.sender].realm[userRealm[msg.sender].cm].valid == true);
         _;
     }
-
     modifier nonNegative(int value){
         require(value >= 0);
         _;
     }
-
     modifier Owner{
         require(msg.sender == userRealm[msg.sender].owner);
         _;
@@ -47,7 +45,7 @@ contract Monsters{
         require(userRealm[msg.sender].valid == true);
         _;
     }
-    function userValid()public view returns(bool){return userRealm[msg.sender].valid;}
+
     function getCM()public view returns(bytes32){return stringToBytes32(userRealm[msg.sender].cm);}
     function getStat(string name)public view returns(int[6]){
         Monster storage tmp = userRealm[msg.sender].realm[name];
@@ -55,12 +53,8 @@ contract Monsters{
     }
     function getValid(string name)public view returns(bool){return userRealm[msg.sender].realm[name].valid;}
     function getRace(string name)public view returns(bytes32){return keccak256(userRealm[msg.sender].realm[name].Race);}
-    function getRaceB()public view returns(bytes32){return keccak256(userRealm[msg.sender].realm[userRealm[msg.sender].cm].Race);}
-    function getName(uint i)public view returns(string){return userRealm[msg.sender].index[i];}
-    function loadStat()public view returns(int[6]){
-        Monster storage myMonster = userRealm[msg.sender].realm[userRealm[msg.sender].cm];
-        return [myMonster.Hp,myMonster.Mp,myMonster.Str,myMonster.Dex,myMonster.Int,myMonster.Luk];
-    }
+    function getName(uint i)public view returns(bytes32){return stringToBytes32(userRealm[msg.sender].index[i]);}
+    function loadStat()public view returns(int[6]){return getStat(userRealm[msg.sender].cm);}
 
     function initRealm()public{
         Realm storage myRealm = userRealm[msg.sender];

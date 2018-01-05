@@ -5,7 +5,7 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-    //version 1.0.1
+    //version 1.0.2
     Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
@@ -15,8 +15,6 @@ contract MonsterTraining{
     }
     mapping(address => User)userData;
     address GM;
-    mapping(address => bytes32)selectedMonster;
-    mapping(address => string[])userIndex;
 
     event Mined(string User, string Class, int Amount);
     event Hatch(string User, string Name, string Race, int Hp ,int Mp ,int Str ,int Dex ,int Int ,int Luk);
@@ -26,28 +24,23 @@ contract MonsterTraining{
         inventory = Inventory(i);
         monsters = Monsters(m);
     }
-    function myData()public view returns(string,bytes32){return (userData[msg.sender].name,userData[msg.sender].password);}
-    function userMValid()public view returns(bool){return monsters.userValid();}
-    function getBalance()public view returns(int){return inventory.getZil();}
-    function mySelectedMonster()public view returns(bytes32){return selectedMonster[msg.sender];}
-    function myBag()public view returns(int[7]){return inventory.getBag();}
-    function myTicket()public view returns(int){return inventory.getTicket();}
-    function myEgg()public view returns(int){return inventory.getEgg();}
-    function loadStat()public view returns(string,int[6]){return (getRace(),monsters.loadStat());}
-    function getMe()public view returns(address){return msg.sender;}
-    function checkStat(string name)public view returns(int[6]){return monsters.getStat(name);}
-    function checkRace(string name)public view returns(string){return bytes32ToRace(monsters.getRace(name));}
-    function monsterExist(string name)public view returns(bool){return monsters.getValid(name);}
-    function getMyMonster(uint i)public view returns(string){return userIndex[msg.sender][i];}
-    function getRace()public view returns(string){
-        bytes32 tmp = monsters.getRaceB();
-        return bytes32ToRace(tmp);
+
+    function myData()public view returns(string,address,bytes32){return (userData[msg.sender].name,msg.sender, userData[msg.sender].password);}
+    function myBalance()public view returns(int){return inventory.getZil();}
+    function myBag()public view returns(string,int[7],string,int,string,int){return ("Gembag", inventory.getBag(), "Ticket", inventory.getTicket(), "Egg",inventory.getEgg());}
+
+    function SelectedMonster()public view returns(string,string,int[6]){return (bytes32ToString(monsters.getCM()),bytes32ToRace(monsters.getCM()),monsters.loadStat());}
+    function checkStat(string name)public view returns(string,int[6]){return (bytes32ToRace(monsters.getRace(name)), monsters.getStat(name));}
+    function getMonsteIndex(uint i)public view returns(string,string,int[6]){
+        string memory name = bytes32ToString(monsters.getName(i));
+        return (name,bytes32ToRace(monsters.getRace(name)), monsters.getStat(name));
+
     }
 
     function collect(uint value)public{
         require(msg.sender == GM);
         value*=1000000000000000000;
-        require(value >= this.balance);
+        require(value <= this.balance);
         GM.transfer(value);
     }
 
@@ -59,22 +52,21 @@ contract MonsterTraining{
     }
 
     function topUp() public payable{
-        uint tmp = msg.value/1000000000000000000;
+        uint tmp = msg.value/1000000000000000000*1000;
         inventory.topUp(tmp);
     }
 
     function hatchMonster(string name)public{
         inventory.useEgg();
         monsters.hatch(name);
-        userIndex[msg.sender].push(name);
-        int[6] memory statTmp = checkStat(name);
-        string memory raceTmp = checkRace(name);
+        int[6] memory statTmp;
+        string memory raceTmp;
+        (raceTmp,statTmp) = checkStat(name);
         Hatch(userData[msg.sender].name,name,raceTmp, statTmp[0], statTmp[1], statTmp[2], statTmp[3], statTmp[4], statTmp[5]);
     }
 
     function loadMonster(string name)public{
         monsters.load(name);
-        selectedMonster[msg.sender] = monsters.getCM();
     }
 
     function buyTicket(int n)public{
@@ -90,7 +82,7 @@ contract MonsterTraining{
         int amountTmp;
         bytes32 tmp = keccak256(word);
         (classTmp,amountTmp) = mine.mine(tmp);
-        inventory.receiveGem(classTmp,amountTmp);
+        inventory.receiveItem(classTmp,amountTmp);
         Mined(userData[msg.sender].name,bytes32ToClass(classTmp),amountTmp);
     }
 
@@ -115,13 +107,12 @@ contract MonsterTraining{
     }
 
     function bytes32ToRace(bytes32 x)private pure returns(string){
-        if(x == keccak256("Golem"))return "Golem";
+        if(x == keccak256("Bear"))return "Bear";
         else if(x == keccak256("Wolf"))return "Wolf";
         else if(x == keccak256("Fairy"))return "Fairy";
         else if(x == keccak256("Rabbit"))return "Rabbit";
         else if(x == keccak256("Slime"))return "Slime";
     }
-
     function bytes32ToClass(bytes32 x)private pure returns(string){
         if(x == keccak256("Hp"))return "Hp";
         else if(x == keccak256("Mp"))return "Mp";
@@ -133,7 +124,6 @@ contract MonsterTraining{
         else if(x == keccak256("Zil"))return "Zil";
         else if(x == keccak256("Empty"))return "Empty";
     }
-
     function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
@@ -150,5 +140,4 @@ contract MonsterTraining{
         }
         return string(bytesStringTrimmed);
     }
-
 }
