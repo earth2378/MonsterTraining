@@ -5,7 +5,7 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-
+    //version 1.0.2
     Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
@@ -113,7 +113,7 @@ contract MonsterTraining{
             //for exchange (Not implement yet)
         }
     }
-    
+
     function bytes32ToRace(bytes32 x)private pure returns(string){
         if(x == keccak256("Golem"))return "Golem";
         else if(x == keccak256("Wolf"))return "Wolf";
@@ -121,7 +121,7 @@ contract MonsterTraining{
         else if(x == keccak256("Rabbit"))return "Rabbit";
         else if(x == keccak256("Slime"))return "Slime";
     }
-    
+
     function bytes32ToClass(bytes32 x)private pure returns(string){
         if(x == keccak256("Hp"))return "Hp";
         else if(x == keccak256("Mp"))return "Mp";
@@ -133,7 +133,7 @@ contract MonsterTraining{
         else if(x == keccak256("Zil"))return "Zil";
         else if(x == keccak256("Empty"))return "Empty";
     }
-    
+
     function bytes32ToString(bytes32 x)private pure returns(string) {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;

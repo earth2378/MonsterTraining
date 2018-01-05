@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "./Random.sol";
 
 contract Mine{
+    //version 1.0.0
     Random random = new Random();
     struct product{
         bytes32 class;

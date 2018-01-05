@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
 
 contract Random{
+    //version 1.0.0
     bytes32 race;
     int[2] extra;
     int[6] status;

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 contract Inventory{
+    //version 1.0.0
     struct Bag{
         address owner;
         GemBag bag;
