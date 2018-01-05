@@ -5,7 +5,7 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-    //version 1.0.2
+    //version 1.0.1
     Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
