@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 contract Random{
-    //version 1.0.0
+    //version 1.0.1
     bytes32 race;
     int[2] extra;
     int[6] status;
@@ -61,24 +61,22 @@ contract Random{
     }
 
     function extraStatRandomSlime(uint n)private pure returns(int){
-        int stat;
-        if(0 <= n || n < 100){
+        if(n >= 0 || n < 100){
             if(n<17){
-                stat = 3;
+                return 3;
             }else if(n<100){
-                stat = 2;
+                return 2;
             }
-            return stat;
         }
     }
 
     function extraStatsRandomSlime(uint n)public returns(int[6]){
-        slimeExtra[0] =(extraStatRandomSlime(n/74)-1)*10;
-        slimeExtra[1] =(extraStatRandomSlime(n/44)-1)*10;
-        slimeExtra[2] = extraStatRandomSlime(n/91);
-        slimeExtra[3] = extraStatRandomSlime(n/53);
-        slimeExtra[4] = extraStatRandomSlime(n/29);
-        slimeExtra[5] = extraStatRandomSlime(n/17);
+        slimeExtra[0] =(extraStatRandomSlime(n/74%100)-1)*10;
+        slimeExtra[1] =(extraStatRandomSlime(n/44%100)-1)*10;
+        slimeExtra[2] = extraStatRandomSlime(n/91%100);
+        slimeExtra[3] = extraStatRandomSlime(n/53%100);
+        slimeExtra[4] = extraStatRandomSlime(n/29%100);
+        slimeExtra[5] = extraStatRandomSlime(n/17%100);
         return slimeExtra;
     }
 

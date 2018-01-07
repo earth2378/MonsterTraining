@@ -5,7 +5,7 @@ import "./Inventory.sol";
 import "./Monsters.sol";
 
 contract MonsterTraining{
-    //version 1.0.2
+    //version 1.0.3
     Mine mine = new Mine();
     Inventory inventory;
     Monsters monsters;
@@ -29,12 +29,11 @@ contract MonsterTraining{
     function myBalance()public view returns(int){return inventory.getZil();}
     function myBag()public view returns(string,int[7],string,int,string,int){return ("Gembag", inventory.getBag(), "Ticket", inventory.getTicket(), "Egg",inventory.getEgg());}
 
-    function SelectedMonster()public view returns(string,string,int[6]){return (bytes32ToString(monsters.getCM()),bytes32ToRace(monsters.getCM()),monsters.loadStat());}
+    function SelectedMonster()public view returns(string,string,int[6]){return (bytes32ToString(monsters.getCM()),bytes32ToRace(monsters.getRace(bytes32ToString(monsters.getCM()))),monsters.loadStat());}
     function checkStat(string name)public view returns(string,int[6]){return (bytes32ToRace(monsters.getRace(name)), monsters.getStat(name));}
     function getMonsteIndex(uint i)public view returns(string,string,int[6]){
         string memory name = bytes32ToString(monsters.getName(i));
         return (name,bytes32ToRace(monsters.getRace(name)), monsters.getStat(name));
-
     }
 
     function collect(uint value)public{

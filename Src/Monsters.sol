@@ -3,7 +3,7 @@ pragma solidity ^0.4.18;
 import "./Random.sol";
 
 contract Monsters{
-    //version 1.0.1
+    //version 1.0.2
     Random random = new Random();
 
     struct Realm{
@@ -104,12 +104,12 @@ contract Monsters{
         Realm storage myMonster = userRealm[msg.sender];
         if(tmp == keccak256("Slime")){
             int[6] memory extraS = random.extraStatsRandomSlime(n);
-            myMonster.realm[name].Hp  = extraS[0];
-            myMonster.realm[name].Mp  = extraS[1];
-            myMonster.realm[name].Str = extraS[2];
-            myMonster.realm[name].Dex = extraS[3];
-            myMonster.realm[name].Int = extraS[4];
-            myMonster.realm[name].Luk = extraS[5];
+            myMonster.realm[name].Hp  += extraS[0];
+            myMonster.realm[name].Mp  += extraS[1];
+            myMonster.realm[name].Str += extraS[2];
+            myMonster.realm[name].Dex += extraS[3];
+            myMonster.realm[name].Int += extraS[4];
+            myMonster.realm[name].Luk += extraS[5];
         }else{
             int[2] memory extra = random.extraStatRandom(n);
             if(tmp == keccak256("Bear")){
